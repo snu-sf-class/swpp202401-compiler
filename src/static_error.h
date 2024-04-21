@@ -53,11 +53,8 @@ public:
 };
 
 template <typename E>
-concept ErrorLike =
-    std::copyable<E> && requires(const E &error) {
-                          {
-                            error.what()
-                            } noexcept -> std::same_as<const char *>;
-                        };
+concept ErrorLike = std::copyable<E> && requires(const E &error) {
+  { error.what() } noexcept -> std::same_as<const char *>;
+};
 } // namespace static_error
 #endif // SC_STATIC_ERROR_H

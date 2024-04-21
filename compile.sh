@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Edit two variables below to match your system configuration
+# Edit three variables below to match your system configuration
 CMAKE_DIR=~/cmake-3.28.3
 LLVM_DIR=~/llvm-18.1.0
 NINJA_DIR=~/ninja-1.11.1
