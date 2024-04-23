@@ -12,8 +12,8 @@
  * Emitting the assembly relies on a number of complex algorithms, but
  * what you only need to know is that the backend will emit the correct assembly
  * as long as you feed it an appropriate LLVM IR program.
- * @version 2024.1.1
- * @date 2024-04-19
+ * @version 2024.1.2
+ * @date 2024-04-23
  * @copyright Copyright (c) 2022-2024 SWPP TAs
  */
 

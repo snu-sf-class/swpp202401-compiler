@@ -1003,7 +1003,7 @@ std::string emitFromVectorParallelAddIntrinsic(llvm::CallInst &__inst) {
 
 bool isVectorParallelSubIntrinsic(llvm::CallInst &__inst) {
   const auto fn_name = __inst.getCalledFunction()->getName();
-  if (fn_name == "vpsub_i32x8" || fn_name == "vpsub_64") {
+  if (fn_name == "vpsub_i32x8" || fn_name == "vpsub_i64x4") {
     return true;
   } else {
     return false;
@@ -1323,7 +1323,8 @@ std::string emitFromVectorParallelAShrIntrinsic(llvm::CallInst &__inst) {
 
 bool isVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
   const auto fn_name = __inst.getCalledFunction()->getName();
-  return (fn_name == "vpicmp_i32x8" || fn_name == "vpicmp_i64x4");
+  return fn_name.starts_with("vpicmp_"s) &&
+         (fn_name.ends_with("i64x4"s) || fn_name.ends_with("i32x8"s));
 }
 
 std::string emitFromVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
@@ -1334,17 +1335,21 @@ std::string emitFromVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
   const auto target =
       unwrapOrThrowWithInst(tryParseVectorRegister(target_str), __inst);
 
-  const auto vcond_str =
-      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(0)), __inst);
-  auto vcond = unwrapOrThrowWithInst(tryParseIcmpCondition(vcond_str), __inst);
+  const auto vcond_str = __inst.getCalledFunction()
+                             ->getName()
+                             .substr("vpicmp_"s.length(), 3)
+                             .rtrim("_");
+
+  const auto vcond =
+      unwrapOrThrowWithInst(tryParseIcmpCondition(vcond_str), __inst);
 
   const auto v1_str =
-      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(1)), __inst);
-  auto v1 = unwrapOrThrowWithInst(tryParseVectorRegister(v1_str), __inst);
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(0)), __inst);
+  const auto v1 = unwrapOrThrowWithInst(tryParseVectorRegister(v1_str), __inst);
 
   const auto v2_str =
-      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(2)), __inst);
-  auto v2 = unwrapOrThrowWithInst(tryParseVectorRegister(v2_str), __inst);
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(1)), __inst);
+  const auto v2 = unwrapOrThrowWithInst(tryParseVectorRegister(v2_str), __inst);
 
   const auto inst = sc::backend::assembly::VectorParallelCompInst::create(
       target, std::move(vcond), v1, v2, bw);
