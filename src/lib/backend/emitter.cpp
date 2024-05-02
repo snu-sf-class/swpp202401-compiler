@@ -1914,7 +1914,7 @@ void AssemblyEmitter::visitCallInst(llvm::CallInst &__inst) {
   auto fn_name = fn->getName().str();
   auto fn_parent_name = fn_parent->getName().str();
 
-  if (__inst.isMustTailCall() && fn_name == fn_parent_name) {
+  if (__inst.isTailCall() && fn_name == fn_parent_name) {
     assembly_lines.push_back(emitFromRecursiveCallIntrinsic(__inst));
     return;
   }
