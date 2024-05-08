@@ -4,15 +4,17 @@
 #include "symbol.h"
 
 #include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/Casting.h"
 
-#include <llvm/IR/DerivedTypes.h>
+#include <string_view>
 
 using namespace llvm;
 using namespace static_error;
+using namespace std::string_view_literals;
 
 namespace sc::backend::const_split {
 ConstantSplitPass::ConstantSplitPass(const_map::ConstMap &__CM) : CM(&__CM) {}
@@ -37,6 +39,12 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
       for (auto &I : BB) {
         if (auto switch_inst = llvm::dyn_cast<llvm::SwitchInst>(&I)) {
           continue;
+        }
+
+        if (auto call_inst = llvm::dyn_cast<llvm::CallInst>(&I)) {
+          if (call_inst->getCalledFunction()->getName().equals("const_i64"sv)) {
+            continue;
+          }
         }
 
         for (size_t i = 0; i < I.getNumOperands(); i++) {
