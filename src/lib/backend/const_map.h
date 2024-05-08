@@ -20,6 +20,9 @@ public:
   llvm::Instruction *resolve_constant(llvm::Function *F, llvm::IntegerType *ty,
                                       assembly::IntTy value,
                                       llvm::Instruction *insert_before);
+  llvm::Instruction *resolve_constant(llvm::Function *F, llvm::PointerType *pty,
+                                      assembly::IntTy value,
+                                      llvm::Instruction *__insert_before);
   llvm::Instruction *resolve_constant(llvm::Function *F, llvm::ConstantInt *cst,
                                       llvm::Instruction *insert_before);
 };
