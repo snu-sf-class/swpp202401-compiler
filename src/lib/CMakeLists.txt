@@ -20,7 +20,7 @@ target_include_directories(SCBackend PRIVATE ${LLVM_INCLUDE_DIRS})
 llvm_map_components_to_libnames(backend_llvm_libs analysis scalaropts)
 target_link_libraries(SCBackend PRIVATE
                         SCPrintIR SCBackendAssembly SCBackendAnalysis
-                        SCBackendEmitter SCBackendSymbol  SCBackendFreezeElimPass SCBackendCheckOraclePass
+                        SCBackendEmitter SCBackendSymbol  SCBackendFreezeElimPass
                         SCBackendConstExprElimPass SCBackendConstSplitPass SCBackendConstMap
                         SCBackendGEPElimPass SCBackendGVElimPass SCBackendAllocaElimPass
                         SCBackendGEPConstCombPass SCBackendPHIPreprocessPass

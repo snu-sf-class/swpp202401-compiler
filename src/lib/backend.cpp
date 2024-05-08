@@ -2,7 +2,6 @@
 
 #include "backend/alloca_eliminate.h"
 #include "backend/assembly.h"
-#include "backend/check_oracle.h"
 #include "backend/const_expr_eliminate.h"
 #include "backend/const_map.h"
 #include "backend/const_split.h"
@@ -33,7 +32,6 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
 
   try {
     llvm::ModulePassManager MPM;
-    MPM.addPass(check_oracle::CheckOraclePass());
     MPM.addPass(freeze_elim::FreezeEliminatePass());
     MPM.addPass(ce_elim::ConstExprEliminatePass());
     MPM.addPass(gep_elim::GEPEliminatePass());

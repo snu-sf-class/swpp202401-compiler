@@ -17,7 +17,6 @@ function(add_backend_pass pass_name file_name)
     target_include_directories(${pass_name} PRIVATE ${LLVM_INCLUDE_DIRS})
 endfunction()
 
-add_backend_pass(SCBackendCheckOraclePass check_oracle.cpp)
 add_backend_pass(SCBackendConstExprElimPass const_expr_eliminate.cpp)
 add_backend_pass(SCBackendConstMap const_map.cpp)
 add_backend_pass(SCBackendConstSplitPass const_split.cpp)
