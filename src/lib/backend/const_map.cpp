@@ -15,6 +15,15 @@ ConstMap::resolve_constant(llvm::Function *F, llvm::IntegerType *ty,
 }
 
 llvm::Instruction *
+ConstMap::resolve_constant(llvm::Function *F, llvm::PointerType *pty,
+                           assembly::IntTy value,
+                           llvm::Instruction *__insert_before) {
+  const auto i64_ty = llvm::IntegerType::getInt64Ty(pty->getContext());
+  const auto cst = llvm::ConstantInt::get(i64_ty, value);
+  return resolve_constant(F, cst, __insert_before);
+}
+
+llvm::Instruction *
 ConstMap::resolve_constant(llvm::Function *F, llvm::ConstantInt *cst,
                            llvm::Instruction *__insert_before) {
   const auto Int64Ty = llvm::IntegerType::getInt64Ty(F->getContext());

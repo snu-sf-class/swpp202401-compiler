@@ -194,7 +194,8 @@ bool resolvePHIInterference(
             v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
 
           const auto cst_1 = CM->resolve_constant(
-              I->getFunction(), llvm::dyn_cast<llvm::IntegerType>(type), 1, I);
+              I->getFunction(), llvm::dyn_cast<llvm::IntegerType>(v->getType()),
+              1, I);
           v = llvm::BinaryOperator::CreateMul(v, cst_1, "", t);
           if (!type->isIntegerTy())
             v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
