@@ -7,6 +7,7 @@
 #include "backend/const_map.h"
 #include "backend/const_split.h"
 #include "backend/emitter.h"
+#include "backend/freeze_eliminate.h"
 #include "backend/gep_const_combine.h"
 #include "backend/gep_eliminate.h"
 #include "backend/gv_eliminate.h"
@@ -33,6 +34,7 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
   try {
     llvm::ModulePassManager MPM;
     MPM.addPass(check_oracle::CheckOraclePass());
+    MPM.addPass(freeze_elim::FreezeEliminatePass());
     MPM.addPass(ce_elim::ConstExprEliminatePass());
     MPM.addPass(gep_elim::GEPEliminatePass());
     MPM.addPass(gv_elim::GVEliminatePass());
