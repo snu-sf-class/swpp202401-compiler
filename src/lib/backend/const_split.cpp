@@ -38,6 +38,11 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
     for (auto &BB : F) {
       for (auto &I : BB) {
         if (auto switch_inst = llvm::dyn_cast<llvm::SwitchInst>(&I)) {
+          if (auto const_switch_cond = llvm::dyn_cast<llvm::ConstantInt>(
+                  switch_inst->getCondition())) {
+            const auto CI = CM->resolve_constant(&F, const_switch_cond, &I);
+            switch_inst->setCondition(CI);
+          }
           continue;
         }
 
