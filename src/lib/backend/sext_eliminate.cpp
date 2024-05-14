@@ -7,6 +7,7 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/Casting.h"
+#include <vector>
 
 using namespace llvm;
 using namespace static_error;
@@ -22,6 +23,8 @@ public:
 
 PreservedAnalyses SignExtendEliminatePass::run(Module &M,
                                                ModuleAnalysisManager &MAM) {
+  std::vector<llvm::SExtInst*> trashbin;
+
   for (auto &F : M) {
     for (auto &BB : F) {
       for (auto &I : BB) {
@@ -38,9 +41,14 @@ PreservedAnalyses SignExtendEliminatePass::run(Module &M,
               llvm::BinaryOperator::CreateMul(val_extended, mask, "", &I);
           const auto ashr = llvm::BinaryOperator::CreateSDiv(shl, mask, "", &I);
           sext_inst->replaceAllUsesWith(ashr);
+          trashbin.push_back(sext_inst);
         }
       }
     }
+  }
+
+  for (auto SI: trashbin) {
+    SI->removeFromParent();
   }
   return PreservedAnalyses::all();
 }
