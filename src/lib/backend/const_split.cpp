@@ -1,4 +1,6 @@
 #include "const_split.h"
+
+#include "arch.h"
 #include "const_map.h"
 #include "emitter.h"
 #include "symbol.h"
@@ -57,7 +59,7 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
           if (const auto null_operand =
                   llvm::dyn_cast<llvm::ConstantPointerNull>(I.getOperand(i))) {
             const_operand = llvm::ConstantInt::get(
-                llvm::IntegerType::getInt64Ty(I.getContext()), 0);
+                llvm::IntegerType::getInt64Ty(I.getContext()), NULL_PTR);
           } else {
             const_operand = llvm::dyn_cast<llvm::ConstantInt>(I.getOperand(i));
           }

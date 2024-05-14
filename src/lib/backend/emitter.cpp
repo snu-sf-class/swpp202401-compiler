@@ -1,6 +1,8 @@
 #include "emitter.h"
 
+#include "arch.h"
 #include "assembly.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 
 #include <charconv>
@@ -54,9 +56,10 @@ tryGetName(llvm::Value *const __value) noexcept {
   using namespace llvm;
   using RetType = std::expected<std::string, UnresolvedSymbolError>;
 
-  if (!__value || isa<ConstantPointerNull>(__value) ||
-      __value->getType()->isVoidTy()) {
+  if (!__value || __value->getType()->isVoidTy()) {
     return RetType("0"s);
+  } else if (isa<ConstantPointerNull>(__value)) {
+    return RetType(std::format("{}", NULL_PTR));
   } else if (isa<ConstantInt>(__value)) {
     // return the value itself.
     return RetType(
