@@ -4,6 +4,7 @@
 #include "const_map.h"
 
 #include "llvm/Analysis/AssumptionCache.h"
+#include "llvm/Analysis/CFG.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -61,6 +62,11 @@ void makeInterferenceGraph(
   std::map<llvm::Instruction *, std::set<llvm::Instruction *>> in, out;
 
   PostOrderRegCollect(F.getEntryBlock(), insts, visit);
+  for (auto &BB: F) {
+    if (!llvm::isPotentiallyReachable(&F.getEntryBlock(), &BB)) {
+      PostOrderRegCollect(BB, insts, visit);
+    }
+  }
 
   for (llvm::Instruction *I : insts) {
     in[I] = {};
