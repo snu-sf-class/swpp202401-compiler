@@ -1,9 +1,11 @@
 #include "register_allocate.h"
 
 #include "analysis.h"
+#include "arch.h"
 #include "const_map.h"
 
 #include "llvm/Analysis/AssumptionCache.h"
+#include "llvm/Analysis/CFG.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -61,6 +63,11 @@ void makeInterferenceGraph(
   std::map<llvm::Instruction *, std::set<llvm::Instruction *>> in, out;
 
   PostOrderRegCollect(F.getEntryBlock(), insts, visit);
+  for (auto &BB : F) {
+    if (!llvm::isPotentiallyReachable(&F.getEntryBlock(), &BB)) {
+      PostOrderRegCollect(BB, insts, visit);
+    }
+  }
 
   for (llvm::Instruction *I : insts) {
     in[I] = {};
@@ -351,7 +358,7 @@ void recursivelyInsertSymbols(
   }
   if (llvm::isa<llvm::ConstantPointerNull>(V) ||
       llvm::isa<llvm::UndefValue>(V)) {
-    SM->addSymbol(V, symbol::Symbol::createConstantSymbol(0UL));
+    SM->addSymbol(V, symbol::Symbol::createConstantSymbol(NULL_PTR));
     return;
   }
   llvm::CallInst *CI = llvm::dyn_cast<llvm::CallInst>(V);
@@ -751,6 +758,7 @@ RegisterAllocatePass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
   for (llvm::Function &F : M) {
     if (F.isDeclaration())
       continue;
+
     not_spill.clear();
     while (true) {
       while (true) {

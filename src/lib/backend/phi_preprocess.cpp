@@ -2,7 +2,9 @@
 
 #include "analysis.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/Support/Casting.h"
 
 #include <set>
 
@@ -25,11 +27,19 @@ PHIPreprocessPass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
       if (!analysis::isReg(v)) {
         llvm::Instruction *t = phi->getIncomingBlock(i)->getTerminator();
         llvm::Type *type = v->getType();
-        if (!type->isIntegerTy())
+        if (type->isVectorTy()) {
+          const auto vty = llvm::dyn_cast<llvm::VectorType>(type);
+          v = llvm::BinaryOperator::CreateMul(
+              v,
+              llvm::ConstantVector::getSplat(
+                  vty->getElementCount(),
+                  llvm::ConstantInt::get(vty->getElementType(), 1)),
+              "", t);
+        } else if (!type->isIntegerTy())
           v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
         v = llvm::BinaryOperator::CreateMul(
             v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
-        if (!type->isIntegerTy())
+        if (!type->isIntegerTy() && !type->isVectorTy())
           v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
         phi->setIncomingValue(i, v);
       }
@@ -46,11 +56,19 @@ PHIPreprocessPass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
       if (visit.count(w)) {
         llvm::Instruction *t = phi->getIncomingBlock(i)->getTerminator();
         llvm::Type *type = v->getType();
-        if (!type->isIntegerTy())
+        if (type->isVectorTy()) {
+          const auto vty = llvm::dyn_cast<llvm::VectorType>(type);
+          v = llvm::BinaryOperator::CreateMul(
+              v,
+              llvm::ConstantVector::getSplat(
+                  vty->getElementCount(),
+                  llvm::ConstantInt::get(vty->getElementType(), 1)),
+              "", t);
+        } else if (!type->isIntegerTy())
           v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
         v = llvm::BinaryOperator::CreateMul(
             v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
-        if (!type->isIntegerTy())
+        if (!type->isIntegerTy() && !type->isVectorTy())
           v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
         phi->setIncomingValue(i, v);
         visit.insert(v);
@@ -69,11 +87,19 @@ PHIPreprocessPass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
       if (llvm::isa<llvm::PHINode>(w)) {
         llvm::Instruction *t = phi->getIncomingBlock(i)->getTerminator();
         llvm::Type *type = v->getType();
-        if (!type->isIntegerTy())
+        if (type->isVectorTy()) {
+          const auto vty = llvm::dyn_cast<llvm::VectorType>(type);
+          v = llvm::BinaryOperator::CreateMul(
+              v,
+              llvm::ConstantVector::getSplat(
+                  vty->getElementCount(),
+                  llvm::ConstantInt::get(vty->getElementType(), 1)),
+              "", t);
+        } else if (!type->isIntegerTy())
           v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
         v = llvm::BinaryOperator::CreateMul(
             v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
-        if (!type->isIntegerTy())
+        if (!type->isIntegerTy() && !type->isVectorTy())
           v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
         phi->setIncomingValue(i, v);
       }

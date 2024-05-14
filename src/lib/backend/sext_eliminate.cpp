@@ -3,10 +3,14 @@
 
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/InstrTypes.h"
+#include "llvm/IR/Instruction.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
+#include <utility>
+#include <vector>
 
 using namespace llvm;
 using namespace static_error;
@@ -22,6 +26,9 @@ public:
 
 PreservedAnalyses SignExtendEliminatePass::run(Module &M,
                                                ModuleAnalysisManager &MAM) {
+  std::vector<std::pair<llvm::Instruction *, llvm::Instruction *>>
+      replace_pairs;
+
   for (auto &F : M) {
     for (auto &BB : F) {
       for (auto &I : BB) {
@@ -36,11 +43,15 @@ PreservedAnalyses SignExtendEliminatePass::run(Module &M,
               sext_inst->getType(), 1llu << (afterBits - beforeBits));
           const auto shl =
               llvm::BinaryOperator::CreateMul(val_extended, mask, "", &I);
-          const auto ashr = llvm::BinaryOperator::CreateSDiv(shl, mask, "", &I);
-          sext_inst->replaceAllUsesWith(ashr);
+          const auto ashr = llvm::BinaryOperator::CreateSDiv(shl, mask);
+          replace_pairs.push_back(std::make_pair(sext_inst, ashr));
         }
       }
     }
+  }
+
+  for (auto &[SI, to] : replace_pairs) {
+    llvm::ReplaceInstWithInst(SI, to);
   }
   return PreservedAnalyses::all();
 }

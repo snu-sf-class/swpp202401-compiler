@@ -1,4 +1,6 @@
 #include "const_split.h"
+
+#include "arch.h"
 #include "const_map.h"
 #include "emitter.h"
 #include "symbol.h"
@@ -38,6 +40,11 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
     for (auto &BB : F) {
       for (auto &I : BB) {
         if (auto switch_inst = llvm::dyn_cast<llvm::SwitchInst>(&I)) {
+          if (auto const_switch_cond = llvm::dyn_cast<llvm::ConstantInt>(
+                  switch_inst->getCondition())) {
+            const auto CI = CM->resolve_constant(&F, const_switch_cond, &I);
+            switch_inst->setCondition(CI);
+          }
           continue;
         }
 
@@ -52,7 +59,7 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
           if (const auto null_operand =
                   llvm::dyn_cast<llvm::ConstantPointerNull>(I.getOperand(i))) {
             const_operand = llvm::ConstantInt::get(
-                llvm::IntegerType::getInt64Ty(I.getContext()), 0);
+                llvm::IntegerType::getInt64Ty(I.getContext()), NULL_PTR);
           } else {
             const_operand = llvm::dyn_cast<llvm::ConstantInt>(I.getOperand(i));
           }
