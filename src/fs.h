@@ -5,8 +5,8 @@
  * @file fs.h
  * @author SWPP TAs (swpp@sf.snu.ac.kr)
  * @brief Module for reading & writing files
- * @version 2024.1.2
- * @date 2024-04-23
+ * @version 2024.1.4
+ * @date 2024-05-14
  * @copyright Copyright (c) 2022-2024 SWPP TAs
  */
 
