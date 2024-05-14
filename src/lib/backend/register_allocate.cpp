@@ -63,7 +63,7 @@ void makeInterferenceGraph(
   std::map<llvm::Instruction *, std::set<llvm::Instruction *>> in, out;
 
   PostOrderRegCollect(F.getEntryBlock(), insts, visit);
-  for (auto &BB: F) {
+  for (auto &BB : F) {
     if (!llvm::isPotentiallyReachable(&F.getEntryBlock(), &BB)) {
       PostOrderRegCollect(BB, insts, visit);
     }
@@ -758,7 +758,7 @@ RegisterAllocatePass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
   for (llvm::Function &F : M) {
     if (F.isDeclaration())
       continue;
-    
+
     not_spill.clear();
     while (true) {
       while (true) {
