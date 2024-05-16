@@ -44,13 +44,21 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
   }
   sc::print_ir::printIRIfVerbose(*__M, "After backend passes"s);
 
-  symbol::SymbolMap SM;
   const_map::ConstMap CM;
   try {
     llvm::ModulePassManager MPM;
     MPM.addPass(phi_prep::PHIPreprocessPass());
     MPM.addPass(sext_elim::SignExtendEliminatePass());
     MPM.addPass(const_split::ConstantSplitPass(CM));
+    MPM.run(*__M, __MAM);
+  } catch (const std::exception &e) {
+    return RetType::unexpected_type(BackendInternalError(e));
+  }
+  sc::print_ir::printIRIfVerbose(*__M, "Before register allocation"s);
+
+  symbol::SymbolMap SM;
+  try {
+    llvm::ModulePassManager MPM;
     MPM.addPass(reg_alloc::RegisterAllocatePass(SM, CM));
     MPM.run(*__M, __MAM);
   } catch (const std::exception &e) {
