@@ -4,6 +4,7 @@
 #include "assembly.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
+#include "llvm/Support/Casting.h"
 
 #include <charconv>
 #include <concepts>
@@ -172,10 +173,9 @@ std::expected<VectorWidth, CalculateVectorWidthError>
 tryCalculateVectorWidth(llvm::Type *const __ty) noexcept {
   using RetType = std::expected<VectorWidth, CalculateVectorWidthError>;
 
-  if (__ty->isPointerTy()) {
-    return RetType(VectorWidth::QWORD);
-  } else if (__ty->isIntegerTy()) {
-    switch (__ty->getIntegerBitWidth()) {
+  const auto vec_ty = llvm::dyn_cast<llvm::VectorType>(__ty);
+  if (vec_ty && vec_ty->getElementType()->isIntegerTy()) {
+    switch (vec_ty->getElementType()->getIntegerBitWidth()) {
     case 32:
       return RetType(VectorWidth::DWORD);
     case 64:
