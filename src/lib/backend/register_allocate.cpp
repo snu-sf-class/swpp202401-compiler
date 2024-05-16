@@ -7,6 +7,7 @@
 #include "llvm/Analysis/AssumptionCache.h"
 #include "llvm/Analysis/CFG.h"
 #include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Dominators.h"
@@ -197,15 +198,22 @@ bool resolvePHIInterference(
             continue;
           llvm::Value *v = phi->getIncomingValue(i);
           llvm::Type *type = v->getType();
-          if (!type->isIntegerTy())
-            v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
+          if (type->isVectorTy()) {
+            const auto cst_1 = CM->resolve_constant(
+                I->getFunction(), llvm::dyn_cast<llvm::ConstantDataVector>(v),
+                I);
+            v = llvm::BinaryOperator::CreateMul(v, cst_1, "", t);
+          } else {
+            if (!type->isIntegerTy())
+              v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
 
-          const auto cst_1 = CM->resolve_constant(
-              I->getFunction(), llvm::dyn_cast<llvm::IntegerType>(v->getType()),
-              1, I);
-          v = llvm::BinaryOperator::CreateMul(v, cst_1, "", t);
-          if (!type->isIntegerTy())
-            v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+            const auto cst_1 = CM->resolve_constant(
+                I->getFunction(),
+                llvm::dyn_cast<llvm::IntegerType>(v->getType()), 1, I);
+            v = llvm::BinaryOperator::CreateMul(v, cst_1, "", t);
+            if (!type->isIntegerTy())
+              v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+          }
           phi->setIncomingValue(i, v);
           return false;
         }
