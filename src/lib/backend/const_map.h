@@ -9,7 +9,7 @@
 #include "llvm/IR/Instruction.h"
 
 namespace sc::backend::const_map {
-using FnConstMap = std::unordered_map<llvm::ConstantInt *, llvm::Instruction *>;
+using FnConstMap = std::unordered_map<llvm::Constant *, llvm::Instruction *>;
 using ModuleConstMap = std::unordered_map<llvm::Function *, FnConstMap>;
 
 class ConstMap {
@@ -23,7 +23,7 @@ public:
   llvm::Instruction *resolve_constant(llvm::Function *F, llvm::PointerType *pty,
                                       assembly::IntTy value,
                                       llvm::Instruction *__insert_before);
-  llvm::Instruction *resolve_constant(llvm::Function *F, llvm::ConstantInt *cst,
+  llvm::Instruction *resolve_constant(llvm::Function *F, llvm::Constant *cst,
                                       llvm::Instruction *insert_before);
 };
 } // namespace sc::backend::const_map

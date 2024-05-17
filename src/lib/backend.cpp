@@ -13,6 +13,7 @@
 #include "backend/phi_preprocess.h"
 #include "backend/register_allocate.h"
 #include "backend/sext_eliminate.h"
+#include "backend/trunc_adjust.h"
 #include "print_ir.h"
 
 #include "llvm/IR/PassManager.h"
@@ -48,6 +49,7 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
   try {
     llvm::ModulePassManager MPM;
     MPM.addPass(phi_prep::PHIPreprocessPass());
+    MPM.addPass(trunc_adjust::TruncateAdjustPass());
     MPM.addPass(sext_elim::SignExtendEliminatePass());
     MPM.addPass(const_split::ConstantSplitPass(CM));
     MPM.run(*__M, __MAM);

@@ -27,6 +27,7 @@ add_backend_pass(SCBackendAllocaElimPass alloca_eliminate.cpp)
 add_backend_pass(SCBackendGEPConstCombPass gep_const_combine.cpp)
 add_backend_pass(SCBackendPHIPreprocessPass phi_preprocess.cpp)
 add_backend_pass(SCBackendSextEliminatePass sext_eliminate.cpp)
+add_backend_pass(SCBackendTruncAdjustPass trunc_adjust.cpp)
 add_backend_pass(SCBackendRegAllocPass register_allocate.cpp)
 
 add_subdirectory(assembly)

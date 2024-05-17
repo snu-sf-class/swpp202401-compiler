@@ -44,6 +44,11 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
                   switch_inst->getCondition())) {
             const auto CI = CM->resolve_constant(&F, const_switch_cond, &I);
             switch_inst->setCondition(CI);
+          } else if (auto const_switch_vec_cond =
+                         llvm::dyn_cast<llvm::ConstantDataVector>(
+                             switch_inst->getCondition())) {
+            const auto CI = CM->resolve_constant(&F, const_switch_cond, &I);
+            switch_inst->setCondition(CI);
           }
           continue;
         }
@@ -55,11 +60,15 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
         }
 
         for (size_t i = 0; i < I.getNumOperands(); i++) {
-          ConstantInt *const_operand = nullptr;
+          Constant *const_operand = nullptr;
           if (const auto null_operand =
                   llvm::dyn_cast<llvm::ConstantPointerNull>(I.getOperand(i))) {
             const_operand = llvm::ConstantInt::get(
                 llvm::IntegerType::getInt64Ty(I.getContext()), NULL_PTR);
+          } else if (const auto vector_operand =
+                         llvm::dyn_cast<llvm::ConstantDataVector>(
+                             I.getOperand(i))) {
+            const_operand = vector_operand;
           } else {
             const_operand = llvm::dyn_cast<llvm::ConstantInt>(I.getOperand(i));
           }
