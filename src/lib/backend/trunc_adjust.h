@@ -4,8 +4,7 @@
 #include "llvm/IR/PassManager.h"
 
 namespace sc::backend::trunc_adjust {
-class TruncateAdjustPass
-    : public llvm::PassInfoMixin<TruncateAdjustPass> {
+class TruncateAdjustPass : public llvm::PassInfoMixin<TruncateAdjustPass> {
 public:
   llvm::PreservedAnalyses run(llvm::Module &, llvm::ModuleAnalysisManager &);
 };
