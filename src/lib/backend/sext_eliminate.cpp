@@ -39,11 +39,11 @@ PreservedAnalyses SignExtendEliminatePass::run(Module &M,
 
           const auto val_extended = llvm::ZExtInst::CreateZExtOrBitCast(
               sext_inst->getOperand(0), sext_inst->getType(), "", &I);
-          const auto mask = llvm::ConstantInt::get(
-              sext_inst->getType(), 1llu << (afterBits - beforeBits));
+          const auto sh_amnt = llvm::ConstantInt::get(sext_inst->getType(),
+                                                      afterBits - beforeBits);
           const auto shl =
-              llvm::BinaryOperator::CreateMul(val_extended, mask, "", &I);
-          const auto ashr = llvm::BinaryOperator::CreateSDiv(shl, mask);
+              llvm::BinaryOperator::CreateShl(val_extended, sh_amnt, "", &I);
+          const auto ashr = llvm::BinaryOperator::CreateAShr(shl, sh_amnt);
           replace_pairs.push_back(std::make_pair(sext_inst, ashr));
         }
       }
