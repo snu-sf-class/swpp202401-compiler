@@ -39,6 +39,8 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
     MPM.addPass(gv_elim::GVEliminatePass());
     MPM.addPass(alloca_elim::AllocaEliminatePass());
     MPM.addPass(gc_comb::GEPConstCombinePass());
+    MPM.addPass(trunc_adjust::TruncateAdjustPass());
+    MPM.addPass(sext_elim::SignExtendEliminatePass());
     MPM.run(*__M, __MAM);
   } catch (const std::exception &e) {
     return RetType::unexpected_type(BackendInternalError(e));
@@ -49,8 +51,6 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
   try {
     llvm::ModulePassManager MPM;
     MPM.addPass(phi_prep::PHIPreprocessPass());
-    MPM.addPass(trunc_adjust::TruncateAdjustPass());
-    MPM.addPass(sext_elim::SignExtendEliminatePass());
     MPM.addPass(const_split::ConstantSplitPass(CM));
     MPM.run(*__M, __MAM);
   } catch (const std::exception &e) {
