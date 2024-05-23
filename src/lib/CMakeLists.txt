@@ -23,7 +23,7 @@ target_link_libraries(SCBackend PRIVATE
                         SCBackendEmitter SCBackendSymbol  SCBackendFreezeElimPass
                         SCBackendConstExprElimPass SCBackendConstSplitPass SCBackendConstMap
                         SCBackendGEPElimPass SCBackendGVElimPass SCBackendAllocaElimPass
-                        SCBackendGEPConstCombPass SCBackendPHIPreprocessPass
+                        SCBackendGEPConstCombPass SCBackendPHIPreprocessPass SCBackendPoisonElimPass
                         SCBackendSextEliminatePass SCBackendTruncAdjustPass
                         SCBackendRegAllocPass ${backend_llvm_libs})
 
