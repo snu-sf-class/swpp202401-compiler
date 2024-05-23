@@ -7,7 +7,7 @@ target_link_libraries(SCParser PRIVATE ${parser_llvm_libs})
 
 add_library(SCPrintIR print_ir.cpp)
 target_include_directories(SCPrintIR PRIVATE ${LLVM_INCLUDE_DIRS})
-llvm_map_components_to_libnames(printer_llvm_libs core support)
+llvm_map_components_to_libnames(printer_llvm_libs core support transformutils)
 target_link_libraries(SCPrintIR ${printer_llvm_libs})
 
 add_library(SCOpt opt.cpp)
@@ -24,7 +24,7 @@ target_link_libraries(SCBackend PRIVATE
                         SCBackendConstExprElimPass SCBackendConstSplitPass SCBackendConstMap
                         SCBackendGEPElimPass SCBackendGVElimPass SCBackendAllocaElimPass
                         SCBackendGEPConstCombPass SCBackendPHIPreprocessPass SCBackendPoisonElimPass
-                        SCBackendSextEliminatePass SCBackendTruncAdjustPass
+                        SCBackendSextEliminatePass SCBackendTruncAdjustPass SCBackendUndefElimPass
                         SCBackendRegAllocPass ${backend_llvm_libs})
 
 add_subdirectory(backend)

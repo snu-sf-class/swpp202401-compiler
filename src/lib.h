@@ -5,7 +5,7 @@
  * @file lib.h
  * @author SWPP TAs (swpp@sf.snu.ac.kr)
  * @brief swpp-compiler main module
- * @version 2024.1.8
+ * @version 2024.1.9
  * @date 2024-05-23
  * @copyright Copyright (c) 2022-2024 SWPP TAs
  */

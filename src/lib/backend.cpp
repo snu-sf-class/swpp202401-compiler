@@ -15,6 +15,7 @@
 #include "backend/register_allocate.h"
 #include "backend/sext_eliminate.h"
 #include "backend/trunc_adjust.h"
+#include "backend/undef_eliminate.h"
 #include "print_ir.h"
 
 #include "llvm/IR/PassManager.h"
@@ -34,6 +35,7 @@ emitAssembly(std::unique_ptr<llvm::Module> &&__M,
 
   try {
     llvm::ModulePassManager MPM;
+    MPM.addPass(undef_elim::UndefEliminatePass());
     MPM.addPass(poison_elim::PoisonEliminatePass());
     MPM.addPass(freeze_elim::FreezeEliminatePass());
     MPM.addPass(ce_elim::ConstExprEliminatePass());

@@ -30,6 +30,7 @@ add_backend_pass(SCBackendPoisonElimPass poison_eliminate.cpp)
 add_backend_pass(SCBackendSextEliminatePass sext_eliminate.cpp)
 add_backend_pass(SCBackendTruncAdjustPass trunc_adjust.cpp)
 add_backend_pass(SCBackendRegAllocPass register_allocate.cpp)
+add_backend_pass(SCBackendUndefElimPass undef_eliminate.cpp)
 
 add_subdirectory(assembly)
 add_subdirectory(symbol)
