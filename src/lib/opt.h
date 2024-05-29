@@ -5,8 +5,8 @@
  * @file opt.h
  * @author SWPP TAs (swpp@sf.snu.ac.kr)
  * @brief Optimization module
- * @version 2024.1.10
- * @date 2024-05-28
+ * @version 2024.1.11
+ * @date 2024-05-30
  * @copyright Copyright (c) 2022-2024 SWPP TAs
  */
 
