@@ -953,6 +953,72 @@ std::string emitFromVectorDecrIntrinsic(llvm::CallInst &__inst) {
   return inst.getAssembly();
 }
 
+bool isVectorCompIntrinsic(llvm::CallInst &__inst) {
+  const auto fn_name = __inst.getCalledFunction()->getName();
+  return fn_name.starts_with("vicmp_"s) &&
+         (fn_name.ends_with("i64x4"s) || fn_name.ends_with("i32x8"s));
+}
+
+std::string emitFromVectorCompIntrinsic(llvm::CallInst &__inst) {
+  const auto bw = unwrapOrThrowWithInst(
+      tryCalculateVectorCompSelectBitWidth(__inst), __inst);
+
+  const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
+  const auto target =
+      unwrapOrThrowWithInst(tryParseVectorRegister(target_str), __inst);
+
+  const auto vcond_str = __inst.getCalledFunction()
+                             ->getName()
+                             .substr("vicmp_"s.length(), 3)
+                             .rtrim("_");
+
+  const auto vcond =
+      unwrapOrThrowWithInst(tryParseIcmpCondition(vcond_str), __inst);
+
+  const auto v1_str =
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(0)), __inst);
+  const auto v1 = unwrapOrThrowWithInst(tryParseVectorRegister(v1_str), __inst);
+
+  const auto v2_str =
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(1)), __inst);
+  const auto v2 = unwrapOrThrowWithInst(tryParseVectorRegister(v2_str), __inst);
+
+  const auto inst = sc::backend::assembly::VectorCompInst::create(
+      target, std::move(vcond), v1, v2, bw);
+  return inst.getAssembly();
+}
+
+bool isVectorSelectIntrinsic(llvm::CallInst &__inst) {
+  const auto fn_name = __inst.getCalledFunction()->getName();
+  return (fn_name == "vselect_i32x8" || fn_name == "vselect_i64x4");
+}
+
+std::string emitFromVectorSelectIntrinsic(llvm::CallInst &__inst) {
+  const auto bw = unwrapOrThrowWithInst(
+      tryCalculateVectorCompSelectBitWidth(__inst), __inst);
+
+  const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
+  const auto target =
+      unwrapOrThrowWithInst(tryParseVectorRegister(target_str), __inst);
+
+  const auto vcond_str =
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(0)), __inst);
+  auto vcond = unwrapOrThrowWithInst(tryParseVectorRegister(vcond_str), __inst);
+
+  const auto vtrue_str =
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(1)), __inst);
+  auto vtrue = unwrapOrThrowWithInst(tryParseVectorRegister(vtrue_str), __inst);
+
+  const auto vfalse_str =
+      unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(2)), __inst);
+  auto vfalse =
+      unwrapOrThrowWithInst(tryParseVectorRegister(vfalse_str), __inst);
+
+  const auto inst = sc::backend::assembly::VectorSelectInst::create(
+      target, std::move(vcond), std::move(vtrue), std::move(vfalse), bw);
+  return inst.getAssembly();
+}
+
 // Parallel Vector Arithmetics
 
 bool isVectorParallelAddIntrinsic(llvm::CallInst &__inst) {
@@ -1364,17 +1430,16 @@ std::string emitFromVectorParallelSelectIntrinsic(llvm::CallInst &__inst) {
       unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(0)), __inst);
   auto vcond = unwrapOrThrowWithInst(tryParseVectorRegister(vcond_str), __inst);
 
-  const auto vtrue_str =
+  const auto vlhs_str =
       unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(1)), __inst);
-  auto vtrue = unwrapOrThrowWithInst(tryParseVectorRegister(vtrue_str), __inst);
+  auto vlhs = unwrapOrThrowWithInst(tryParseVectorRegister(vlhs_str), __inst);
 
-  const auto vfalse_str =
+  const auto vrhs_str =
       unwrapOrThrowWithInst(tryGetName(__inst.getArgOperand(2)), __inst);
-  auto vfalse =
-      unwrapOrThrowWithInst(tryParseVectorRegister(vfalse_str), __inst);
+  auto vrhs = unwrapOrThrowWithInst(tryParseVectorRegister(vrhs_str), __inst);
 
   const auto inst = sc::backend::assembly::VectorParallelSelectInst::create(
-      target, std::move(vcond), std::move(vtrue), std::move(vfalse), bw);
+      target, std::move(vcond), std::move(vlhs), std::move(vrhs), bw);
   return inst.getAssembly();
 }
 
@@ -1849,6 +1914,12 @@ void AssemblyEmitter::visitCallInst(llvm::CallInst &__inst) {
     return;
   } else if (isIntAssertionIntrinsic(__inst)) {
     assembly_lines.push_back(emitFromIntAssertionIntrinsic(__inst));
+    return;
+  } else if (isVectorCompIntrinsic(__inst)) {
+    assembly_lines.push_back(emitFromVectorCompIntrinsic(__inst));
+    return;
+  } else if (isVectorSelectIntrinsic(__inst)) {
+    assembly_lines.push_back(emitFromVectorSelectIntrinsic(__inst));
     return;
   } else if (isVectorParallelAddIntrinsic(__inst)) {
     assembly_lines.push_back(emitFromVectorParallelAddIntrinsic(__inst));
