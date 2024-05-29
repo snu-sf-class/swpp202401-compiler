@@ -1023,7 +1023,7 @@ std::string emitFromVectorSelectIntrinsic(llvm::CallInst &__inst) {
 
 bool isVectorParallelAddIntrinsic(llvm::CallInst &__inst) {
   const auto fn_name = __inst.getCalledFunction()->getName();
-  if (fn_name == "vpadd_i32x8" || fn_name == "vpadd_64") {
+  if (fn_name == "vpadd_i32x8" || fn_name == "vpadd_i64x4") {
     return true;
   } else {
     return false;
