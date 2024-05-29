@@ -916,7 +916,7 @@ bool isVectorIncrIntrinsic(llvm::CallInst &__inst) {
 
 std::string emitFromVectorIncrIntrinsic(llvm::CallInst &__inst) {
   const auto bw =
-      unwrapOrThrowWithInst(tryCalculateVectorWidth(__inst), __inst);
+      unwrapOrThrowWithInst(tryCalculateVectorIncrDecrBitWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -938,7 +938,7 @@ bool isVectorDecrIntrinsic(llvm::CallInst &__inst) {
 
 std::string emitFromVectorDecrIntrinsic(llvm::CallInst &__inst) {
   const auto bw =
-      unwrapOrThrowWithInst(tryCalculateVectorWidth(__inst), __inst);
+      unwrapOrThrowWithInst(tryCalculateVectorIncrDecrBitWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -1914,6 +1914,12 @@ void AssemblyEmitter::visitCallInst(llvm::CallInst &__inst) {
     return;
   } else if (isIntAssertionIntrinsic(__inst)) {
     assembly_lines.push_back(emitFromIntAssertionIntrinsic(__inst));
+    return;
+  } else if (isVectorIncrIntrinsic(__inst)) {
+    assembly_lines.push_back(emitFromVectorIncrIntrinsic(__inst));
+    return;
+  } else if (isVectorDecrIntrinsic(__inst)) {
+    assembly_lines.push_back(emitFromVectorDecrIntrinsic(__inst));
     return;
   } else if (isVectorCompIntrinsic(__inst)) {
     assembly_lines.push_back(emitFromVectorCompIntrinsic(__inst));
