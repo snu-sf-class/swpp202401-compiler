@@ -866,12 +866,8 @@ tryCalculateVectorWidth(llvm::CallInst &__inst) noexcept {
     const auto v1_ty = __inst.getArgOperand(0)->getType();
     const auto v2_ty = __inst.getArgOperand(1)->getType();
     if (ret_ty == v1_ty && ret_ty == v2_ty) {
-      const auto ret_bw = ret_ty->getScalarSizeInBits();
-      const auto v1_bw = v1_ty->getScalarSizeInBits();
-      const auto v2_bw = v2_ty->getScalarSizeInBits();
-      if (ret_bw == v1_bw || ret_bw == v2_bw) {
-        return VectorWidth(ret_bw);
-      }
+      return tryCalculateVectorWidth(ret_ty).transform_error(
+          [&__inst](auto _) { return IllFormedIntrinsicError(__inst); });
     }
   }
   return RetType::unexpected_type(IllFormedIntrinsicError(__inst));
@@ -886,11 +882,8 @@ tryCalculateVectorIncrDecrBitWidth(llvm::CallInst &__inst) noexcept {
   if (ret_ty->isVectorTy() && __inst.arg_size() == 1) {
     const auto v_ty = __inst.getArgOperand(0)->getType();
     if (ret_ty == v_ty) {
-      const auto ret_bw = ret_ty->getScalarSizeInBits();
-      const auto v_bw = v_ty->getScalarSizeInBits();
-      if (ret_bw == v_bw) {
-        return VectorWidth(ret_bw);
-      }
+      return tryCalculateVectorWidth(ret_ty).transform_error(
+          [&__inst](auto _) { return IllFormedIntrinsicError(__inst); });
     }
   }
   return RetType::unexpected_type(IllFormedIntrinsicError(__inst));
@@ -907,13 +900,8 @@ tryCalculateVectorCompSelectBitWidth(llvm::CallInst &__inst) noexcept {
     const auto v2_ty = __inst.getArgOperand(1)->getType();
     const auto v3_ty = __inst.getArgOperand(2)->getType();
     if (ret_ty == v1_ty && ret_ty == v2_ty && ret_ty == v3_ty) {
-      const auto ret_bw = ret_ty->getScalarSizeInBits();
-      const auto v1_bw = v1_ty->getScalarSizeInBits();
-      const auto v2_bw = v2_ty->getScalarSizeInBits();
-      const auto v3_bw = v3_ty->getScalarSizeInBits();
-      if (ret_bw == v1_bw || ret_bw == v2_bw || ret_bw == v3_bw) {
-        return VectorWidth(ret_bw);
-      }
+      return tryCalculateVectorWidth(ret_ty).transform_error(
+          [&__inst](auto _) { return IllFormedIntrinsicError(__inst); });
     }
   }
   return RetType::unexpected_type(IllFormedIntrinsicError(__inst));
