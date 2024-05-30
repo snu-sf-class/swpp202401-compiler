@@ -23,8 +23,8 @@ target_link_libraries(SCBackend PRIVATE
                         SCBackendEmitter SCBackendSymbol  SCBackendFreezeElimPass
                         SCBackendConstExprElimPass SCBackendConstSplitPass SCBackendConstMap
                         SCBackendGEPElimPass SCBackendGVElimPass SCBackendAllocaElimPass
-                        SCBackendGEPConstCombPass SCBackendPHIPreprocessPass SCBackendPoisonElimPass
-                        SCBackendSextEliminatePass SCBackendTruncAdjustPass SCBackendUndefElimPass
+                        SCBackendGEPConstCombPass SCBackendPHIPreprocessPass
+                        SCBackendSextEliminatePass SCBackendTruncAdjustPass
                         SCBackendRegAllocPass ${backend_llvm_libs})
 
 add_subdirectory(backend)

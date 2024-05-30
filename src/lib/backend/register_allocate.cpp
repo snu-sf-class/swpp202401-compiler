@@ -364,9 +364,17 @@ void recursivelyInsertSymbols(
     SM->addSymbol(C, symbol::Symbol::createConstantSymbol(C->getZExtValue()));
     return;
   }
-  if (llvm::isa<llvm::ConstantPointerNull>(V) ||
-      llvm::isa<llvm::UndefValue>(V)) {
+  if (llvm::isa<llvm::ConstantPointerNull>(V)) {
     SM->addSymbol(V, symbol::Symbol::createConstantSymbol(NULL_PTR));
+    return;
+  }
+  if (auto undef = llvm::dyn_cast<llvm::UndefValue>(V)) {
+    const auto undef_ty = undef->getType();
+    if (undef_ty->isVectorTy()) {
+      SM->addSymbol(undef, symbol::Symbol::createVectorRegisterSymbol(1));
+    } else {
+      SM->addSymbol(undef, symbol::Symbol::createRegisterSymbol(1));
+    }
     return;
   }
   llvm::CallInst *CI = llvm::dyn_cast<llvm::CallInst>(V);
