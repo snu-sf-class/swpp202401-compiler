@@ -4,7 +4,7 @@
  * @file args.h
  * @author SWPP TAs (swpp@sf.snu.ac.kr)
  * @brief swpp-compiler argument parser module
- * @version 2024.1.11
+ * @version 2024.1.12
  * @date 2024-05-30
  * @copyright Copyright (c) 2022-2024 SWPP TAs
  */
