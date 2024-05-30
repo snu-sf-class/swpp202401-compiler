@@ -2,14 +2,11 @@
 
 #include "arch.h"
 #include "const_map.h"
-#include "emitter.h"
-#include "symbol.h"
 
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Passes/PassBuilder.h"
-#include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/Casting.h"
 
 #include <string_view>

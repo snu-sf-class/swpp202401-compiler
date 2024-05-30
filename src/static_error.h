@@ -5,7 +5,7 @@
  * @file static_error.h
  * @author SWPP TAs (swpp@sf.snu.ac.kr)
  * @brief Header-only module for statically typed exceptions
- * @version 2024.1.11
+ * @version 2024.1.12
  * @date 2024-05-30
  * @copyright Copyright (c) 2022-2024 SWPP TAs
  */
