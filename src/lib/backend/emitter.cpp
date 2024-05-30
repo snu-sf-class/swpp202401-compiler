@@ -891,7 +891,7 @@ tryCalculateVectorIncrDecrBitWidth(llvm::CallInst &__inst) noexcept {
 
 // Comp, Select
 std::expected<VectorWidth, IllFormedIntrinsicError>
-tryCalculateVectorCompSelectBitWidth(llvm::CallInst &__inst) noexcept {
+tryCalculateVectorSelectBitWidth(llvm::CallInst &__inst) noexcept {
   using RetType = std::expected<VectorWidth, IllFormedIntrinsicError>;
   const auto ret_ty = __inst.getType();
 
@@ -961,7 +961,7 @@ bool isVectorCompIntrinsic(llvm::CallInst &__inst) {
 
 std::string emitFromVectorCompIntrinsic(llvm::CallInst &__inst) {
   const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorCompSelectBitWidth(__inst), __inst);
+      tryCalculateVectorWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -995,7 +995,7 @@ bool isVectorSelectIntrinsic(llvm::CallInst &__inst) {
 
 std::string emitFromVectorSelectIntrinsic(llvm::CallInst &__inst) {
   const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorCompSelectBitWidth(__inst), __inst);
+      tryCalculateVectorSelectBitWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -1386,7 +1386,7 @@ bool isVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
 
 std::string emitFromVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
   const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorCompSelectBitWidth(__inst), __inst);
+      tryCalculateVectorWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -1420,7 +1420,7 @@ bool isVectorParallelSelectIntrinsic(llvm::CallInst &__inst) {
 
 std::string emitFromVectorParallelSelectIntrinsic(llvm::CallInst &__inst) {
   const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorCompSelectBitWidth(__inst), __inst);
+      tryCalculateVectorSelectBitWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
