@@ -1301,7 +1301,7 @@ VectorCompInst VectorCompInst::create(const VectorRegister __target,
 
 std::string VectorCompInst::getAssembly() const noexcept {
   return joinTokens(prependTargetVector(
-      target, collectOpTokens("vcomp"s, cond, vec1, vec2, bw)));
+      target, collectOpTokens("vicmp"s, cond, vec1, vec2, bw)));
 }
 
 //---------------------------------------------------------
@@ -1610,7 +1610,7 @@ VectorParallelCompInst VectorParallelCompInst::create(
 
 std::string VectorParallelCompInst::getAssembly() const noexcept {
   return joinTokens(prependTargetVector(
-      target, collectOpTokens("vpcomp"s, cond, vec1, vec2, bw)));
+      target, collectOpTokens("vpicmp"s, cond, vec1, vec2, bw)));
 }
 
 //---------------------------------------------------------
