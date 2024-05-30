@@ -1326,7 +1326,7 @@ VectorSelectInst VectorSelectInst::create(const VectorRegister __target,
 
 std::string VectorSelectInst::getAssembly() const noexcept {
   return joinTokens(prependTargetVector(
-      target, collectOpTokens("vpselect"s, vec_cond, vec1, vec2, bw)));
+      target, collectOpTokens("vselect"s, vec_cond, vec1, vec2, bw)));
 }
 
 // Parallel Arithmetics
