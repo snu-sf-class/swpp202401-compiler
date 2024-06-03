@@ -8,6 +8,7 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Support/TypeSize.h"
 
 #include <string_view>
 
@@ -77,6 +78,22 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
         }
       }
     }
+
+    // Vector MOV operands
+    CM->resolve_constant(
+        &F,
+        llvm::ConstantVector::getSplat(
+            llvm::ElementCount::getFixed(8),
+            llvm::ConstantInt::get(
+                llvm::IntegerType::getInt32Ty(F.getContext()), 1)),
+        F.getEntryBlock().getTerminator());
+    CM->resolve_constant(
+        &F,
+        llvm::ConstantVector::getSplat(
+            llvm::ElementCount::getFixed(4),
+            llvm::ConstantInt::get(
+                llvm::IntegerType::getInt64Ty(F.getContext()), 1)),
+        F.getEntryBlock().getTerminator());
   }
   return PreservedAnalyses::all();
 }
