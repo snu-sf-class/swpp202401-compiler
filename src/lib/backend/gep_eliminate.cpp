@@ -62,7 +62,7 @@ GEPEliminatePass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
           v.push_back(pti);
           for (auto opIt = GEPI->idx_begin(); opIt != GEPI->idx_end(); ++opIt) {
             const auto op =
-                llvm::CastInst::CreateZExtOrBitCast(*opIt, Int64Ty, "", GEPI);
+                llvm::CastInst::CreateSExtOrBitCast(*opIt, Int64Ty, "", GEPI);
             const auto size =
                 unwrapOrThrowWithGEP(analysis::tryCalculateSize(curr), *GEPI);
             llvm::Instruction *mul = llvm::BinaryOperator::CreateMul(
