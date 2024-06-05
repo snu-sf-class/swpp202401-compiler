@@ -197,11 +197,13 @@ bool resolvePHIInterference(
             continue;
           llvm::Value *v = phi->getIncomingValue(i);
           llvm::Type *type = v->getType();
-          if (type->isVectorTy()) {
-            const auto cst_1 = CM->resolve_constant(
-                I->getFunction(), llvm::dyn_cast<llvm::ConstantDataVector>(v),
+          if (auto vty = llvm::dyn_cast<llvm::VectorType>(type)) {
+            const auto int_1 = llvm::ConstantInt::get(vty->getElementType(), 1);
+            const auto cst_vec_1 = CM->resolve_constant(
+                I->getFunction(),
+                llvm::ConstantVector::getSplat(vty->getElementCount(), int_1),
                 I);
-            v = llvm::BinaryOperator::CreateMul(v, cst_1, "", t);
+            v = llvm::BinaryOperator::CreateMul(v, cst_vec_1, "", t);
           } else {
             if (!type->isIntegerTy())
               v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
@@ -337,17 +339,17 @@ std::pair<int, int> GreedyColoring(
       if (vector_reg_color.count(J))
         vector_color_used.insert(vector_reg_color[J]);
     }
-    int i = 1;
+    int i = 1, v = 1;
     if (I->getType()->isIntegerTy() || I->getType()->isPointerTy()) {
       while (general_color_used.count(i))
         i++;
       general_reg_color[I] = i;
       general_num_colors = std::max(general_num_colors, i);
     } else if (I->getType()->isVectorTy()) {
-      while (vector_color_used.count(i))
-        i++;
-      vector_reg_color[I] = i;
-      vector_num_colors = std::max(vector_num_colors, i);
+      while (vector_color_used.count(v))
+        v++;
+      vector_reg_color[I] = v;
+      vector_num_colors = std::max(vector_num_colors, v);
     }
   }
   return std::make_pair(general_num_colors, vector_num_colors);
@@ -745,6 +747,42 @@ void spillColors(llvm::Function &F, int num_general_colors,
   insertLoadStore(general_color2inst[min_general_color], SP, not_spill);
   insertVectorLoadStore(vector_color2inst[min_vector_color], SP, not_spill);
 }
+
+void removeUnusedMOVOperands(llvm::Function &F, const_map::ConstMap *const CM) {
+  const auto mov_op_i32x8 = CM->resolve_constant(
+      &F,
+      llvm::ConstantVector::getSplat(
+          llvm::ElementCount::getFixed(8),
+          llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(F.getContext()),
+                                 1)),
+      F.getEntryBlock().getTerminator());
+  if (mov_op_i32x8->getNumUses() == 0) {
+    const auto vbcast_decl =
+        llvm::dyn_cast<llvm::CallInst>(mov_op_i32x8)->getCalledFunction();
+    mov_op_i32x8->removeFromParent();
+    mov_op_i32x8->deleteValue();
+    if (vbcast_decl->getNumUses() == 0) {
+      vbcast_decl->removeFromParent();
+    }
+  }
+
+  const auto mov_op_i64x4 = CM->resolve_constant(
+      &F,
+      llvm::ConstantVector::getSplat(
+          llvm::ElementCount::getFixed(4),
+          llvm::ConstantInt::get(llvm::IntegerType::getInt64Ty(F.getContext()),
+                                 1)),
+      F.getEntryBlock().getTerminator());
+  if (mov_op_i64x4->getNumUses() == 0) {
+    const auto vbcast_decl =
+        llvm::dyn_cast<llvm::CallInst>(mov_op_i64x4)->getCalledFunction();
+    mov_op_i64x4->removeFromParent();
+    mov_op_i64x4->deleteValue();
+    if (vbcast_decl->getNumUses() == 0) {
+      vbcast_decl->removeFromParent();
+    }
+  }
+}
 } // namespace
 
 namespace sc::backend::reg_alloc {
@@ -801,6 +839,7 @@ RegisterAllocatePass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
       spillColors(F, num_general_colors, num_vector_colors, general_reg_color,
                   vector_reg_color, decr_sp, not_spill);
     }
+    removeUnusedMOVOperands(F, this->CM);
     insertSymbols(SM, F, general_reg_color, vector_reg_color);
   }
   return llvm::PreservedAnalyses::all();

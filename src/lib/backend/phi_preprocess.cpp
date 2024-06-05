@@ -35,12 +35,14 @@ PHIPreprocessPass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
                   vty->getElementCount(),
                   llvm::ConstantInt::get(vty->getElementType(), 1)),
               "", t);
-        } else if (!type->isIntegerTy())
-          v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
-        v = llvm::BinaryOperator::CreateMul(
-            v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
-        if (!type->isIntegerTy() && !type->isVectorTy())
-          v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+        } else {
+          if (!type->isIntegerTy())
+            v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
+          v = llvm::BinaryOperator::CreateMul(
+              v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
+          if (!type->isIntegerTy())
+            v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+        }
         phi->setIncomingValue(i, v);
       }
     }
@@ -64,12 +66,14 @@ PHIPreprocessPass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
                   vty->getElementCount(),
                   llvm::ConstantInt::get(vty->getElementType(), 1)),
               "", t);
-        } else if (!type->isIntegerTy())
-          v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
-        v = llvm::BinaryOperator::CreateMul(
-            v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
-        if (!type->isIntegerTy() && !type->isVectorTy())
-          v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+        } else {
+          if (!type->isIntegerTy())
+            v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
+          v = llvm::BinaryOperator::CreateMul(
+              v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
+          if (!type->isIntegerTy())
+            v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+        }
         phi->setIncomingValue(i, v);
         visit.insert(v);
       } else {
@@ -95,12 +99,14 @@ PHIPreprocessPass::run(llvm::Module &M, llvm::ModuleAnalysisManager &MAM) {
                   vty->getElementCount(),
                   llvm::ConstantInt::get(vty->getElementType(), 1)),
               "", t);
-        } else if (!type->isIntegerTy())
-          v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
-        v = llvm::BinaryOperator::CreateMul(
-            v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
-        if (!type->isIntegerTy() && !type->isVectorTy())
-          v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+        } else {
+          if (!type->isIntegerTy())
+            v = llvm::CastInst::CreateBitOrPointerCast(v, Int64Ty, "", t);
+          v = llvm::BinaryOperator::CreateMul(
+              v, llvm::ConstantInt::get(v->getType(), 1UL, true), "", t);
+          if (!type->isIntegerTy())
+            v = llvm::CastInst::CreateBitOrPointerCast(v, type, "", t);
+        }
         phi->setIncomingValue(i, v);
       }
     }
