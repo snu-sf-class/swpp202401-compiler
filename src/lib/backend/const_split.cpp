@@ -11,12 +11,19 @@
 #include "llvm/Support/TypeSize.h"
 
 #include <string_view>
-#include <utility>
 #include <vector>
 
 using namespace llvm;
 using namespace static_error;
 using namespace std::string_view_literals;
+
+namespace {
+typedef struct {
+  llvm::Instruction *I;
+  llvm::Value *subst_target;
+  llvm::Constant *cst;
+} SubstitutionData;
+} // namespace
 
 namespace sc::backend::const_split {
 ConstantSplitPass::ConstantSplitPass(const_map::ConstMap &__CM) : CM(&__CM) {}
@@ -32,8 +39,7 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
                                          ModuleAnalysisManager &MAM) {
   llvm::IntegerType *Int64Ty = llvm::Type::getInt64Ty(M.getContext());
 
-  std::vector<std::pair<llvm::Instruction *, llvm::Constant *>>
-      replace_candidates;
+  std::vector<SubstitutionData> replace_candidates;
 
   for (auto &F : M) {
     if (F.isDeclaration()) {
@@ -79,15 +85,15 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
           }
 
           if (const_operand) {
-            replace_candidates.push_back(std::make_pair(&I, const_operand));
+            replace_candidates.push_back({&I, I.getOperand(i), const_operand});
           }
         }
       }
     }
 
-    for (auto &[I, cst] : replace_candidates) {
+    for (auto &[I, tgt, cst] : replace_candidates) {
       const auto CI = CM->resolve_constant(&F, cst, I);
-      I->replaceUsesOfWith(cst, CI);
+      I->replaceUsesOfWith(tgt, CI);
     }
 
     // Vector MOV operands
