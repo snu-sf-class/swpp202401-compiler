@@ -11,6 +11,8 @@
 #include "llvm/Support/TypeSize.h"
 
 #include <string_view>
+#include <utility>
+#include <vector>
 
 using namespace llvm;
 using namespace static_error;
@@ -30,10 +32,15 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
                                          ModuleAnalysisManager &MAM) {
   llvm::IntegerType *Int64Ty = llvm::Type::getInt64Ty(M.getContext());
 
+  std::vector<std::pair<llvm::Instruction *, llvm::Constant *>>
+      replace_candidates;
+
   for (auto &F : M) {
     if (F.isDeclaration()) {
       continue;
     }
+
+    replace_candidates.clear();
 
     for (auto &BB : F) {
       for (auto &I : BB) {
@@ -72,11 +79,15 @@ PreservedAnalyses ConstantSplitPass::run(Module &M,
           }
 
           if (const_operand) {
-            const auto CI = CM->resolve_constant(&F, const_operand, &I);
-            I.replaceUsesOfWith(I.getOperand(i), CI);
+            replace_candidates.push_back(std::make_pair(&I, const_operand));
           }
         }
       }
+    }
+
+    for (auto &[I, cst] : replace_candidates) {
+      const auto CI = CM->resolve_constant(&F, cst, I);
+      I->replaceUsesOfWith(cst, CI);
     }
 
     // Vector MOV operands
