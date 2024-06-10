@@ -395,7 +395,7 @@ const std::map<std::string, VectorRegister, std::less<>> vector_reg_table = {
     {"v1"s, VectorRegister::V1},   {"v2"s, VectorRegister::V2},
     {"v3"s, VectorRegister::V3},   {"v4"s, VectorRegister::V4},
     {"v5"s, VectorRegister::V5},   {"v6"s, VectorRegister::V6},
-    {"ve"s, VectorRegister::V7},   {"v8"s, VectorRegister::V8},
+    {"v7"s, VectorRegister::V7},   {"v8"s, VectorRegister::V8},
     {"v9"s, VectorRegister::V9},   {"v10"s, VectorRegister::V10},
     {"v11"s, VectorRegister::V11}, {"v12"s, VectorRegister::V12},
     {"v13"s, VectorRegister::V13}, {"v14"s, VectorRegister::V14},
@@ -960,8 +960,8 @@ bool isVectorCompIntrinsic(llvm::CallInst &__inst) {
 }
 
 std::string emitFromVectorCompIntrinsic(llvm::CallInst &__inst) {
-  const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorWidth(__inst), __inst);
+  const auto bw =
+      unwrapOrThrowWithInst(tryCalculateVectorWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -994,8 +994,8 @@ bool isVectorSelectIntrinsic(llvm::CallInst &__inst) {
 }
 
 std::string emitFromVectorSelectIntrinsic(llvm::CallInst &__inst) {
-  const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorSelectBitWidth(__inst), __inst);
+  const auto bw =
+      unwrapOrThrowWithInst(tryCalculateVectorSelectBitWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -1385,8 +1385,8 @@ bool isVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
 }
 
 std::string emitFromVectorParallelCompIntrinsic(llvm::CallInst &__inst) {
-  const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorWidth(__inst), __inst);
+  const auto bw =
+      unwrapOrThrowWithInst(tryCalculateVectorWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
@@ -1419,8 +1419,8 @@ bool isVectorParallelSelectIntrinsic(llvm::CallInst &__inst) {
 }
 
 std::string emitFromVectorParallelSelectIntrinsic(llvm::CallInst &__inst) {
-  const auto bw = unwrapOrThrowWithInst(
-      tryCalculateVectorSelectBitWidth(__inst), __inst);
+  const auto bw =
+      unwrapOrThrowWithInst(tryCalculateVectorSelectBitWidth(__inst), __inst);
 
   const auto target_str = unwrapOrThrowWithInst(tryGetName(&__inst), __inst);
   const auto target =
