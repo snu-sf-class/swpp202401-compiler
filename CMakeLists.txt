@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28.0)
-project(swpp-compiler VERSION 2024.1.14)
+project(swpp-compiler VERSION 2024.1.15)
 
 # check if Doxygen is installed
 find_package(Doxygen)
